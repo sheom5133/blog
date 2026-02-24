@@ -2,7 +2,15 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+
+async function getSiteUrl() {
+    const headersList = await headers()
+    const host = headersList.get('host') ?? 'localhost:3000'
+    const proto = headersList.get('x-forwarded-proto') ?? 'http'
+    return `${proto}://${host}`
+}
 
 export async function login(formData: FormData) {
     const supabase = await createClient()
@@ -57,9 +65,10 @@ export async function signout() {
 export async function resetPassword(formData: FormData) {
     const supabase = await createClient()
     const email = formData.get('email') as string
+    const siteUrl = await getSiteUrl()
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/update-password`,
+        redirectTo: `${siteUrl}/update-password`,
     })
 
     if (error) {
