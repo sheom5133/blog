@@ -1,0 +1,9 @@
+
+
+
+NEXT_PUBLIC_SUPABASE_URL=https://imsgdjzwrqmgwokcicdx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_MpJCitrTa1-EYaUZjymzbA_BBohFxAk
+
+--
+spabase API KEY는 아래있음 
+sb_publishable_MpJCitrTa1-EYaUZjymzbA_BBohFxAk
