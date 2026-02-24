@@ -18,6 +18,10 @@ export async function login(formData: FormData) {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
+    if (!email || !password) {
+        return { error: '이메일과 비밀번호를 입력해 주세요.' }
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -37,6 +41,11 @@ export async function signup(formData: FormData) {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     const name = formData.get('name') as string
+    const siteUrl = await getSiteUrl()
+
+    if (!email || !password || !name) {
+        return { error: '모든 항목을 입력해 주세요.' }
+    }
 
     const { error } = await supabase.auth.signUp({
         email,
@@ -45,6 +54,8 @@ export async function signup(formData: FormData) {
             data: {
                 full_name: name,
             },
+            // 이메일 인증 후 돌아올 콜백 URL
+            emailRedirectTo: `${siteUrl}/auth/callback?next=/`,
         },
     })
 
@@ -67,8 +78,13 @@ export async function resetPassword(formData: FormData) {
     const email = formData.get('email') as string
     const siteUrl = await getSiteUrl()
 
+    if (!email) {
+        return { error: '이메일을 입력해 주세요.' }
+    }
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${siteUrl}/update-password`,
+        // callback 통해 세션 교환 후 update-password 로 이동
+        redirectTo: `${siteUrl}/auth/callback?next=/update-password`,
     })
 
     if (error) {
@@ -82,6 +98,10 @@ export async function updatePassword(formData: FormData) {
     const supabase = await createClient()
     const password = formData.get('password') as string
 
+    if (!password) {
+        return { error: '새 비밀번호를 입력해 주세요.' }
+    }
+
     const { error } = await supabase.auth.updateUser({ password })
 
     if (error) {
@@ -91,4 +111,3 @@ export async function updatePassword(formData: FormData) {
     revalidatePath('/', 'layout')
     redirect('/')
 }
-
